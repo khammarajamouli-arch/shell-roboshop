@@ -13,6 +13,7 @@ START_TIME=$(date +%s)
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
 mkdir -p $LOGS_FOLDER
+SCRIPT_DIR=$(PWD)
 
 echo "Script started at : $(date)" | tee -a $LOG_FILE
 
@@ -32,16 +33,21 @@ VALIDATE(){
 
 }
 
-dnf install mysql-server -y &>>$LOG_FILE
-VALIDATE $?  "installing mysql server"
+cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
+VALIDATE $? "Adding the rabbitmq repo"
 
-systemctl enable mysqld &>>$LOG_FILE
-VALIDATE $? "enabling mysqld"
+dnf install rabbitmq-server -y &>>$LOG_FILE
+VALIDATE $? "installing the rabbitmq server"
 
-systemctl start mysqld  &>>$LOG_FILE
-VALIDATE $? "starting the mysqld"
+systemctl enable rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "enabling the rabbitmq server"
 
-mysql_secure_installation --set-root-pass RoboShop@1
+systemctl start rabbitmq-server &>>$LOG_FILE
+VALIDATE $? "starting the rabbitmq server"
+
+rabbitmqctl add_user roboshop roboshop123
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+VALIDATE $? "setting the permissions"
 
 END_TIME=$(date +%s)
 TOTAL_TIME=$(( $END_TIME - $START_TIME ))
