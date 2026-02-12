@@ -13,7 +13,7 @@ START_TIME=$(date +%s)
 LOG_FILE="$LOGS_FOLDER/$SCRIPT_NAME.log"
 
 mkdir -p $LOGS_FOLDER
-SCRIPT_DIR=$(PWD)
+SCRIPT_DIR=$PWD
 
 echo "Script started at : $(date)" | tee -a $LOG_FILE
 
@@ -33,7 +33,7 @@ VALIDATE(){
 
 }
 
-cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo
+cp $SCRIPT_DIR/rabbitmq.repo /etc/yum.repos.d/rabbitmq.repo &>>$LOG_FILE
 VALIDATE $? "Adding the rabbitmq repo"
 
 dnf install rabbitmq-server -y &>>$LOG_FILE
@@ -45,8 +45,8 @@ VALIDATE $? "enabling the rabbitmq server"
 systemctl start rabbitmq-server &>>$LOG_FILE
 VALIDATE $? "starting the rabbitmq server"
 
-rabbitmqctl add_user roboshop roboshop123
-rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*"
+rabbitmqctl add_user roboshop roboshop123 &>>$LOG_FILE
+rabbitmqctl set_permissions -p / roboshop ".*" ".*" ".*" &>>$LOG_FILE
 VALIDATE $? "setting the permissions"
 
 END_TIME=$(date +%s)
