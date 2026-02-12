@@ -57,6 +57,7 @@ VALIDATE $? "unzip nginx"
 
 rm -rf /etc/nginx/nginx.conf
 cp $SCRIPT_DIR/nginx.conf /etc/nginx/nginx.conf
+VALIDATE $? "copying the nginx conf file"
 
 systemctl restart nginx &>>$LOG_FILE
 VALIDATE $? "restarting nginx"
